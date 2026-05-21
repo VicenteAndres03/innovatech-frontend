@@ -1,5 +1,5 @@
 version: '3.8'
-
+#docker
 services:
   # ----------------------------------------------------
   # 1. CAPA DE DATOS: Base de Datos Relacional (MySQL)
