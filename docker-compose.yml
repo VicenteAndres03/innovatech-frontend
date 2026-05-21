@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------
+  # 1. CAPA DE DATOS: Base de Datos Relacional (MySQL)
+  # ----------------------------------------------------
+  database:
+    image: mysql:8.0
+    container_name: innovatech-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: innovatech_db
+      MYSQL_USER: innovatech_user
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - innovatech-net
+
+  # ----------------------------------------------------
+  # 2. CAPA BACKEND: Microservicio de Ventas (Desde Docker Hub)
+  # ----------------------------------------------------
+  back-ventas:
+    image: vicenteandres03/innovatech-back-ventas:latest
+    container_name: innovatech-back-ventas
+    restart: always
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/innovatech_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=innovatech_user
+      - SPRING_DATASOURCE_PASSWORD=userpassword
+    depends_on:
+      - database
+    networks:
+      - innovatech-net
+
+  # ----------------------------------------------------
+  # 3. CAPA BACKEND: Microservicio de Despachos (Desde Docker Hub)
+  # ----------------------------------------------------
+  back-despachos:
+    image: vicenteandres03/innovatech-back-despachos:latest
+    container_name: innovatech-back-despachos
+    restart: always
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/innovatech_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=innovatech_user
+      - SPRING_DATASOURCE_PASSWORD=userpassword
+    depends_on:
+      - database
+    networks:
+      - innovatech-net
+
+  # ----------------------------------------------------
+  # 4. CAPA FRONTEND: Interfaz de Usuario (Desde Docker Hub)
+  # ----------------------------------------------------
+  frontend:
+    image: vicenteandres03/innovatech-frontend:latest
+    container_name: innovatech-frontend-app
+    restart: always
+    ports:
+      - "80:8080"
+    depends_on:
+      - back-ventas
+      - back-despachos
+    networks:
+      - innovatech-net
+
+networks:
+  innovatech-net:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
