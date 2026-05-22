@@ -40,4 +40,4 @@ jobs:
             sudo docker stop frontend-app || true
             sudo docker rm frontend-app || true
             sudo docker pull vicenteandres23/innovatech-frontend:latest
-            sudo docker run -d --name frontend-app -p 80:80 vicenteandres23/innovatech-frontend:latest
+            sudo docker run -d --name frontend-app -p 80:8080 vicenteandres23/innovatech-frontend:latest
